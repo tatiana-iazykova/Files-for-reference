@@ -42,34 +42,31 @@ class Diff():
     diffs =[]
     for tag, i1, i2, j1, j2 in res.get_opcodes(): 
       if tag == 'replace' or tag ==  'delete':        
-        diffs.append("\n".join(["-" + line for line in l1[i1:i2]]))
-        diffs.append("\n".join(["+" + line for line in l1[j1:j2]]))
+        diffs.append('-' + ''.join(l1[i1:i2]))
+        diffs.append('+' + ''.join(l2[j1:j2]))
       elif tag == 'equal':
-       diffs.append("\n".join([" " + line for line in l1[i1:i2]]))
+       diffs.append(' ' + ''.join(l1[i1:i2]))
       elif tag == 'insert':
-        diffs.append("\n".join(["+" + line for line in l1[i1:i2]] + ["+" + line for line in l2[j1:j2]]))
+        diffs.append('+' + ''.join(l2[j1:j2]))
     return diffs
 
   def build_file(self, filename, v=None):   
     diff_history = self.files[filename]
     content = []
-    if isinstance(v, int):
-      for line in diff_history[v]:
-        if line[0] == '+' or line[0] == ' ':
-            content.append(line[1:])
-    else:
-      for item in diff_history:
-        i = 0
-        for line in item:
-          if line[0] == '+':
-            content[i]=line[1:]
-            i+=1
-            continue
-          elif line[0] == '-':
-            content[i] = None
-            continue
+    for item in diff_history[:v]:
+      tmp = []
+      i = 0
+      for line in item:
+        if line[0] == '+':
+          tmp.append(line[1:])
           i+=1
-    return '\n'.join([x for x in content if x]) 
+          continue
+        elif line[0] == '-':
+          tmp.append(None)
+          continue
+        i+=1
+        content.append(tmp)
+    return ''.join([x for x in content if x]) 
 
     def save_version(self, filename, version):
       fie = self.build_file(filename, v=version)
