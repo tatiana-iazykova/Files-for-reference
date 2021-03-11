@@ -79,7 +79,10 @@ class Diff():
     def change_all(self, v):
       for key in self.files:
         save_version(key, version=v)
-        
+ 
+def main():
+	git = Diff('.')	 
+       
 if __name__ == '__main__':
-	git = Diff('.')
-     main()
+	main()
+    
