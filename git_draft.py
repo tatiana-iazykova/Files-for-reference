@@ -30,25 +30,28 @@ class Diff():
     filecontent = self.content(filename)
     if filename in self.files:
       prev_cont = self.build_file(filename)
-      diff = self.diff_files1(prev_cont, filecontent)
-      for item in diff:
-          self.files[filename].append(diff)
+      self.files[filename].append(self.diff_files1(prev_cont, filecontent))
+      # for item in diff:
+      #     self.files[filename].append(diff)
     else:
       diff = self.diff_files1('', filecontent)
-      self.files[filename] = [diff]
-  
+      self.files[filename].append(diff)
+
   def diff_files1(self, l1, l2):
     res = SequenceMatcher(None, l1, l2)
-    diffs =[]
+    diffs = ''
     for tag, i1, i2, j1, j2 in res.get_opcodes(): 
-      if tag == 'replace' or tag ==  'delete':        
-        diffs.append('-' + ''.join(l1[i1:i2]))
-        diffs.append('+' + ''.join(l2[j1:j2]))
+      if tag == 'replace':        
+        diff +=(''.join(["-" + line for line in l1[i1:i2]]))
+        diffs +=(''.join(["+" + line for line in l2[j1:j2]]))
+      if tag == 'delete':
+        diffs +=(''.join(["-" + line for line in l1[i1:i2]]))
       elif tag == 'equal':
-       diffs.append(' ' + ''.join(l1[i1:i2]))
+       diffs +=("".join([" " + line for line in l1[i1:i2]]))
       elif tag == 'insert':
-        diffs.append('+' + ''.join(l2[j1:j2]))
-    return diffs
+        diffs +=("".join(["+" + line for line in l1[i1:i2]] + ["+" + line for line in l2[j1:j2]]))
+    print(diffs)
+    return diffs.split('\n')
 
   def build_file(self, filename, v=None):   
     diff_history = self.files[filename]
@@ -57,7 +60,7 @@ class Diff():
       tmp = []
       i = 0
       for line in item:
-        if line[0] == '+':
+        if line[0] == '+' or line[0] == ' ':
           tmp.append(line[1:])
           i+=1
           continue
