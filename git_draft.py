@@ -1,10 +1,5 @@
 import os
 from difflib import SequenceMatcher
-
-with open('f1.txt','w') as f:
-  f.write('cat sat quetly\ncat went to sleep')
-with open('f2.txt','w') as f1:
-  f1.write('cat sat quetly.\ncat went to sleep')
   
 class Diff():
 
@@ -31,45 +26,45 @@ class Diff():
     if filename in self.files:
       prev_cont = self.build_file(filename)
       self.files[filename].append(self.diff_files1(prev_cont, filecontent))
-      # for item in diff:
-      #     self.files[filename].append(diff)
     else:
       diff = self.diff_files1('', filecontent)
       self.files[filename].append(diff)
 
   def diff_files1(self, l1, l2):
     res = SequenceMatcher(None, l1, l2)
-    diffs = ''
-    for tag, i1, i2, j1, j2 in res.get_opcodes(): 
-      if tag == 'replace':        
-        diff +=(''.join(["-" + line for line in l1[i1:i2]]))
-        diffs +=(''.join(["+" + line for line in l2[j1:j2]]))
-      if tag == 'delete':
-        diffs +=(''.join(["-" + line for line in l1[i1:i2]]))
-      elif tag == 'equal':
-       diffs +=("".join([" " + line for line in l1[i1:i2]]))
-      elif tag == 'insert':
-        diffs +=("".join(["+" + line for line in l1[i1:i2]] + ["+" + line for line in l2[j1:j2]]))
-    print(diffs)
-    return diffs.split('\n')
+    if not l1:
+      diffs = ''
+      for tag, i1, i2, j1, j2 in res.get_opcodes(): 
+        if tag == 'replace' or tag == 'delete':        
+          diffs +=('_!_'.join(["-" + line for line in l1[i1:i2]]))
+          diffs +=('_!_'.join(["+" + line for line in l2[j1:j2]]))
+        elif tag == 'equal':
+          diffs +=("_!_".join([" " + line for line in l1[i1:i2]]))
+        elif tag == 'insert':
+          diffs +=("_!_".join(["+" + line for line in l1[i1:i2]] + ["+" + line for line in l2[j1:j2]]))
+      return diffs.split('_!_')
+    else:
+      diffs = []
+      for tag, i1, i2, j1, j2 in res.get_opcodes(): 
+        if tag == 'replace' or tag == 'delete':     
+          diffs.append("".join(["-" + line for line in l1[i1:i2]]))
+          diffs.append("".join(["+" + line for line in l2[j1:j2]])) 
+        elif tag == 'equal':
+          diffs.append(" ".join(l2[j1:j2]))
+        elif tag == 'insert':
+          diffs.append("".join(["+" + line for line in l2[j1:j2]]))   
+      return diffs
 
   def build_file(self, filename, v=None):   
     diff_history = self.files[filename]
     content = []
     for item in diff_history[:v]:
       tmp = []
-      i = 0
       for line in item:
         if line[0] == '+' or line[0] == ' ':
           tmp.append(line[1:])
-          i+=1
-          continue
-        elif line[0] == '-':
-          tmp.append(None)
-          continue
-        i+=1
-        content.append(tmp)
-    return ''.join([x for x in content if x]) 
+      content = tmp
+    return content
 
     def save_version(self, filename, version):
       fie = self.build_file(filename, v=version)
@@ -81,6 +76,10 @@ class Diff():
         save_version(key, version=v)
  
 def main():
+	with open('f1.txt','w') as f:
+		f.write('cat sat quetly\ncat went to sleep')
+	with open('f2.txt','w') as f1:
+		f1.write('cat sat quetly.\ncat went to sleep')
 	git = Diff('.')	 
        
 if __name__ == '__main__':
