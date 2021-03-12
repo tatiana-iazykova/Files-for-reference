@@ -50,7 +50,9 @@ class Diff():
           diffs.append("".join(["-" + line for line in l1[i1:i2]]))
           diffs.append("".join(["+" + line for line in l2[j1:j2]])) 
         elif tag == 'equal':
-          diffs.append(" ".join(l2[j1:j2]))
+          x = ("_!_".join([" " + line for line in l1[i1:i2]]))
+          for el in x.split('_!_'):
+            diffs.append(el)
         elif tag == 'insert':
           diffs.append("".join(["+" + line for line in l2[j1:j2]]))   
       return diffs
