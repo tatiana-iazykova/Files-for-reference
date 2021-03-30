@@ -1,3 +1,5 @@
+import numpy as np
+
 class Rules:
   def __init__(self, everybody, stats):
     self.everybody=everybody
