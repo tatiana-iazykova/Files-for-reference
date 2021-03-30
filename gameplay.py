@@ -1,6 +1,7 @@
 import pandas as pd
 import inspect
 from collections import OrderedDict
+from events import Rules
 
 class Game:
   def __init__(self, player, meta):
